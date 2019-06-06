@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Componente</title>
+    <link rel="stylesheet" href="/css/estilo.css">
+    <script src="/js/vue.min.js"></script>
+</head>
+
+<body class="exercicio">
+    <div id="app">
+        <counter step="1"></counter>
+        <counter step="2"></counter>
+        <counter step="3"></counter>
+    </div>
+    <script>
+        Vue.component('counter', {
+            props: ['step'],
+            data() {
+                return {
+                    step: 1,
+                    value: 0
+                }
+            },
+            methods: {
+                increment() {
+                    this.value += parseInt(this.step)
+                },
+                decrement() {
+                    this.value -= parseInt(this.step)
+                }
+            },
+            template: `
+                <div>
+                    <span>{{value}}</span>
+                    <button class="btn btn-primary" @click="increment">+ {{step}}</button>
+                    <button class="btn btn-secound" @click="decrement">- {{step}}</button>
+                </div>
+            `
+        })
+
+        new Vue({
+            el: '#app'
+        })
+    </script>
+</body>
+
+</html>

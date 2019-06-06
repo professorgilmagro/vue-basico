@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <script src="js/vue.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Relatório de Vendas</title>
+</head>
+
+<body>
+    <div id="app">
+        <table class="table table-dark table-striped" v-if="salesByProduct">
+            <legend>{{title}}</legend>
+            <thead class="thread-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Descrição</th>
+                    <th>Qtde</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(item, i) in salesByProduct">
+                    <td class="text-left">#{{i+1}}</td>
+                    <td>{{item.name}}</td>
+                    <td>{{item.qtd}}</td>
+                    <td v-money="'R$'">{{item.value}}</td>
+                </tr>
+            </tbody>
+            <tfoot class="tfoot-dark">
+                <td>+</td>
+                <td>Total</td>
+                <td>{{calculateAmount(salesByProduct)}}</td>
+                <td v-money="'$R$'">{{calculateTotal(salesByProduct)}}</td>
+            </tfoot>
+        </table>
+    </div>
+    <script>
+        Vue.directive('money', {
+            inserted(el, binding) {
+                const value = parseFloat(el.innerHTML).toFixed(2)
+                    .replace('.', ',')
+                    .replace(/(\d)(?=(\d{3})+\,)/g, '$1.')
+                el.innerHTML = value
+            }
+        })
+        new Vue({
+            el: '#app',
+            data: {
+                title: 'Relatório de vendas',
+                sales: null
+            },
+            methods: {
+                getSales() {
+                    fetch('/data/sales.json')
+                        .then(resp => resp.json())
+                        .then(data => this.sales = data)
+                },
+                calculateTotal(sales) {
+                    if (!sales) {
+                        return 0
+                    }
+
+                    return sales.reduce((total, sale) => total + sale.value, 0)
+                },
+                calculateAmount(sales) {
+                    if (!sales) {
+                        return 0
+                    }
+
+                    return sales.reduce((amount, sale) => amount + sale.qtd, 0)
+                }
+            },
+            mounted() {
+                this.getSales()
+            },
+            computed: {
+                salesByProduct() {
+                    if (!this.sales) return null
+
+                    const salesByProduct = this.sales.reduce((grouped, sale) => {
+                        const subtotal = sale.price * sale.qtde
+                        if (!grouped.hasOwnProperty(sale.name)) {
+                            grouped[sale.name] = {
+                                name: sale.name,
+                                qtd: sale.qtde,
+                                value: subtotal
+                            }
+
+                            return grouped
+                        }
+
+                        grouped[sale.name].value += subtotal
+                        grouped[sale.name].qtd += sale.qtde
+                        return grouped
+
+                    }, {})
+
+                    return Object.values(salesByProduct)
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

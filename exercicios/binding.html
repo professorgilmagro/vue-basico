@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Binding</title>
+    <link rel="stylesheet" href="/css/estilo.css">
+    <script src="/js/vue.min.js"></script>
+</head>
+
+<body class="exercicio">
+    <div id="app">
+        <a :href="link" target="_blank">Google Maps</a>
+        <p>
+            <input type="text" v-model="nome"><br>
+            <span>{{nome}}</span>
+        </p>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                nome: "Gilmar Soares",
+                link: 'https://www.google.com.br/maps'
+            },
+            watch: {
+                nome(newValue) {
+                    console.log(newValue.toUpperCase())
+                }
+            },
+        })
+    </script>
+</body>
+
+</html>
